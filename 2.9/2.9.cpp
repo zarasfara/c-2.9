@@ -1,9 +1,10 @@
 ﻿#include <iostream>
+#include <algorithm>
 using namespace std;
 
 // Функция вычисления расстояния между двумя точками для нахождения длин сторон треугольника
 double calculateDistance(double* p1, double* p2) {
-    // формула
+
     return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2));
 }
 
@@ -12,6 +13,12 @@ double calculatePerimeter(double* p1, double* p2, double* p3) {
     double a = calculateDistance(p1, p2);
     double b = calculateDistance(p1, p3);
     double c = calculateDistance(p2, p3);
+
+    double maxSide = max({ a, b, c });
+    if (a + b + c - maxSide <= maxSide) { // сумма длин двух меньших сторон не должна быть меньше, чем длина наибольшей стороны
+        // Невыполнение условия, треугольник не может существовать
+        return -1;
+    }
     return a + b + c;
 }
 
@@ -31,14 +38,16 @@ double** findLargestTriangle(double** points, int size) {
         // Перебираем все точки, начиная со следующей после i-ой точки, и заканчивая предпоследней точкой в массиве.
         for (int j = i + 1; j < size - 1; j++) {
 
-            // перебираем все точки, начиная со следующей после j-ой точки, и заканчивая последней точкой в массиве.
+            // Перебираем все точки, начиная со следующей после j-ой точки, и заканчивая последней точкой в массиве.
             for (int k = j + 1; k < size; k++) {
                 double perimeter = calculatePerimeter(points[i], points[j], points[k]);
                 if (perimeter > largestPerimeter) {
-                    largestPerimeter = perimeter;
-                    largestTriangle[0] = points[i];
-                    largestTriangle[1] = points[j];
-                    largestTriangle[2] = points[k];
+                    if (perimeter != -1) { // проверяем результат на -1
+                        largestPerimeter = perimeter;
+                        largestTriangle[0] = points[i];
+                        largestTriangle[1] = points[j];
+                        largestTriangle[2] = points[k];
+                    }
                 }
             }
         }
@@ -54,8 +63,14 @@ int main()
     cout << "Введите количество точек: ";
     cin >> numPoints;
 
-    // Создаем массив указателей на структуры Point
-    auto points = new double* [numPoints];
+    if (numPoints < 3)
+    {
+        cout << "Необходимо минимум 3 точки.";
+        return 0;
+    }
+
+    // Создаем указатель на массив указателей на значения типа double.
+    double** points = new double* [numPoints];
 
     for (int i = 0; i < numPoints; i++)
     {
@@ -83,17 +98,12 @@ int main()
 
     // Освобождаем выделенную память
     delete[] largestTriangle;
+    delete[] points;
+
     return 0;
 }
-
 /*
-    Point** points
+    Это может быть полезным для создания массива, состоящего из других массивов, или для создания массива указателей на объекты, 
+    которые могут быть созданы и управляться динамически в программе.
 
-    Эта строка объявляет переменную "points" типа "указатель на указатель на объект класса Point" в C++.
-
-    Тип "указатель на указатель" используется, когда необходимо создать указатель на массив указателей, 
-    как в примере выше, где "points" является массивом указателей на объекты класса "Point".
-
-    "Point" в данном случае - это пользовательский тип данных, определенный как класс. 
-    Он содержит координаты точки в двумерном пространстве.
 */
