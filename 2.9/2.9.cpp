@@ -1,15 +1,15 @@
 ﻿#include <iostream>
 #include <algorithm>
+#include <cmath>
 using namespace std;
 
 // Функция вычисления расстояния между двумя точками для нахождения длин сторон треугольника
-double calculateDistance(double* p1, double* p2) {
-
+double calculateDistance(double p1[], double p2[]) {
     return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2));
 }
 
 // Функция вычисления периметра треугольника по трем точкам
-double calculatePerimeter(double* p1, double* p2, double* p3) {
+double calculatePerimeter(double p1[], double p2[], double p3[]) {
     double a = calculateDistance(p1, p2);
     double b = calculateDistance(p1, p3);
     double c = calculateDistance(p2, p3);
@@ -23,11 +23,11 @@ double calculatePerimeter(double* p1, double* p2, double* p3) {
 }
 
 // Функция для нахождения трех точек, образующих треугольник с наибольшим периметром
-double** findLargestTriangle(double** points, int size) {
+double(*findLargestTriangle(double* points[], int size))[2] {
     double largestPerimeter = 0;
 
     // largestTriangle - указатель на массив указателей на объекты типа Point // массив указателей на объекты типа Point 
-    double** largestTriangle = new double* [3];
+    double(*largestTriangle)[2] = new double[3][2];
 
     /*
         Перебираем все точки в массиве, кроме последних двух.
@@ -44,14 +44,19 @@ double** findLargestTriangle(double** points, int size) {
                 if (perimeter > largestPerimeter) {
                     if (perimeter != -1) { // проверяем результат на -1
                         largestPerimeter = perimeter;
-                        largestTriangle[0] = points[i];
-                        largestTriangle[1] = points[j];
-                        largestTriangle[2] = points[k];
+                        largestTriangle[0][0] = points[i][0];
+                        largestTriangle[0][1] = points[i][1];
+                        largestTriangle[1][0] = points[j][0];
+                        largestTriangle[1][1] = points[j][1];
+                        largestTriangle[2][0] = points[k][0];
+                        largestTriangle[2][1] = points[k][1];
                     }
                 }
             }
         }
     }
+
+    // Возвращаем указатель на массив точек с наибольшим периметром
     return largestTriangle;
 }
 
@@ -88,7 +93,7 @@ int main()
     // { 1, 5 };
 
     // Находим треугольник с наибольшим периметром
-    double** largestTriangle = findLargestTriangle(points, numPoints);
+    double(*largestTriangle)[2] = findLargestTriangle(points, numPoints);
 
     // Выводим результат
     cout << "Точки, образующие треугольник с наибольшим периметром: " << endl;
@@ -97,8 +102,12 @@ int main()
     cout << "(" << largestTriangle[2][0] << ", " << largestTriangle[2][1] << ")" << endl;
 
     // Освобождаем выделенную память
-    delete[] largestTriangle;
+    for (int i = 0; i < numPoints; i++) {
+        delete[] points[i];
+    }
     delete[] points;
+
+    delete[] largestTriangle;
 
     return 0;
 }
